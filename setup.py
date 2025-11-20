@@ -40,7 +40,7 @@ setup(
         "pyreadline3;platform_system=='Windows'",
         "pyyaml>=3.13",
         "setuptools>=80.9.0",
-        "pdfminer.six"
+        "pdfminer.six>=20220524"
     ],
     extras_require={
         'demangle': ['cxxfilt'],
