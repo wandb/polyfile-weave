@@ -23,7 +23,7 @@ setup(
     long_description_content_type="text/markdown",
     url='https://github.com/zbirenbaum/polyfile-weave',
     author='Trail of Bits',
-    version="0.5.8",
+    version="0.5.9",
     packages=find_packages(exclude=("tests",)),
     python_requires='>=3.8',
     install_requires=[
