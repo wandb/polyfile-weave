@@ -23,7 +23,7 @@ setup(
     long_description_content_type="text/markdown",
     url='https://github.com/zbirenbaum/polyfile-weave',
     author='Trail of Bits',
-    version="0.5.8",
+    version="0.5.9",
     packages=find_packages(exclude=("tests",)),
     python_requires='>=3.8',
     install_requires=[
@@ -34,12 +34,11 @@ setup(
         "graphviz>=0.20.1",
         "intervaltree>=2.4.0",
         "jinja2>=2.1.0",
-        "kaitaistruct~=0.10",
+        "kaitaistruct>=0.11",
         "networkx>=2.6.3",
         "Pillow>=5.0.0",
         "pyreadline3;platform_system=='Windows'",
         "pyyaml>=3.13",
-        "setuptools>=80.9.0",
         "pdfminer.six>=20251230"
     ],
     extras_require={

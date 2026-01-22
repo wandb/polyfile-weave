@@ -2,6 +2,7 @@ polyfile/triddefs_xml.7z
 polyfile/defs/*
 poyfile/trie_full.gz
 polyfile/trie_partial.gz
+polyfile/kaitai/kaitai-struct-compiler*
 ~*
 *.pyc
 .vscode/
