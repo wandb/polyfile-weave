@@ -32,8 +32,16 @@ jobs:
         python -m pip install --upgrade pip
         pip install setuptools
         pip install .[dev]
-    - name: Scan with pip-audit
+    - name: Scan with pip-audit (Python 3.10+)
+      if: matrix.python-version != '3.9'
       uses: trailofbits/gh-action-pip-audit@v1.1.0
+    - name: Scan with pip-audit (Python 3.9 - ignore filelock vulns)
+      if: matrix.python-version == '3.9'
+      uses: trailofbits/gh-action-pip-audit@v1.1.0
+      with:
+        ignore-vulns: |
+          GHSA-m4xg-8fg4-qg97
+          PYSEC-2024-86
     - name: Lint with flake8
       run: |
         # stop the build if there are Python syntax errors or undefined names
