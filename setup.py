@@ -39,7 +39,7 @@ setup(
         "Pillow>=5.0.0",
         "pyreadline3;platform_system=='Windows'",
         "pyyaml>=3.13",
-        "pdfminer.six>=20251230"
+        "pdfminer.six>=20251230;python_version>='3.10'"
     ],
     extras_require={
         'demangle': ['cxxfilt'],

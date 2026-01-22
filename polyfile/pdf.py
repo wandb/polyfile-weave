@@ -2,97 +2,102 @@ import sys
 from typing import Callable, Dict, Iterator, List, Optional, Type, TypeVar, Union
 import zlib
 
-from pdfminer.ascii85 import ascii85decode, asciihexdecode
-from pdfminer.ccitt import ccittfaxdecode
-from pdfminer.lzw import lzwdecode
-from pdfminer.runlength import rldecode
-
-# Core parser and exceptions that remain stable
-from pdfminer.pdfparser import PDFSyntaxError
-from pdfminer.pdfparser import PDFParser as PDFMinerParser
-
-# PDFStream and PDFObjRef moved from pdfminer.pdfparser -> pdfminer.pdftypes
+# Try to import pdfminer - it's not available on Python 3.9 for security reasons
+PDFMINER_AVAILABLE = True
 try:
-    from pdfminer.pdftypes import PDFStream, PDFObjRef  # new location
-except Exception:  # pragma: no cover - fallback for older pdfminer
-    from pdfminer.pdfparser import PDFStream, PDFObjRef  # old location
+    from pdfminer.ascii85 import ascii85decode, asciihexdecode
+    from pdfminer.ccitt import ccittfaxdecode
+    from pdfminer.lzw import lzwdecode
+    from pdfminer.runlength import rldecode
 
-# psparser symbols; KWD moved from pdfdocument -> psparser
-from pdfminer.psparser import (
-    ExtraT,
-    PSBaseParserToken,
-    PSKeyword,
-    PSObject,
-    PSLiteral,
-    PSStackEntry,
-    PSSyntaxError,
-)
-try:
-    from pdfminer.psparser import KWD  # new location
-except Exception:  # pragma: no cover
-    # old location
-    from pdfminer.pdfdocument import KWD
+    # Core parser and exceptions that remain stable
+    from pdfminer.pdfparser import PDFSyntaxError
+    from pdfminer.pdfparser import PDFParser as PDFMinerParser
 
-# PSEOF moved from pdfdocument -> psexceptions
-try:
-    from pdfminer.psexceptions import PSEOF  # new location
-except Exception:  # pragma: no cover
-    from pdfminer.pdfdocument import PSEOF  # old location
+    # PDFStream and PDFObjRef moved from pdfminer.pdfparser -> pdfminer.pdftypes
+    try:
+        from pdfminer.pdftypes import PDFStream, PDFObjRef  # new location
+    except Exception:  # pragma: no cover - fallback for older pdfminer
+        from pdfminer.pdfparser import PDFStream, PDFObjRef  # old location
 
-# dict_value moved from pdfdocument -> pdftypes
-try:
-    from pdfminer.pdftypes import dict_value  # new location
-except Exception:  # pragma: no cover
-    from pdfminer.pdfdocument import dict_value  # old location
+    # psparser symbols; KWD moved from pdfdocument -> psparser
+    from pdfminer.psparser import (
+        ExtraT,
+        PSBaseParserToken,
+        PSKeyword,
+        PSObject,
+        PSLiteral,
+        PSStackEntry,
+        PSSyntaxError,
+    )
+    try:
+        from pdfminer.psparser import KWD  # new location
+    except Exception:  # pragma: no cover
+        # old location
+        from pdfminer.pdfdocument import KWD
 
-# DecipherCallable moved to pdftypes
-try:
-    from pdfminer.pdftypes import DecipherCallable  # new location
-except Exception:  # pragma: no cover
-    from pdfminer.pdfdocument import DecipherCallable  # old location
+    # PSEOF moved from pdfdocument -> psexceptions
+    try:
+        from pdfminer.psexceptions import PSEOF  # new location
+    except Exception:  # pragma: no cover
+        from pdfminer.pdfdocument import PSEOF  # old location
 
-# PDFObjectNotFound moved to pdfexceptions
-try:
-    from pdfminer.pdfexceptions import PDFObjectNotFound  # new location
-except Exception:  # pragma: no cover
-    from pdfminer.pdfdocument import PDFObjectNotFound  # old location
+    # dict_value moved from pdfdocument -> pdftypes
+    try:
+        from pdfminer.pdftypes import dict_value  # new location
+    except Exception:  # pragma: no cover
+        from pdfminer.pdfdocument import dict_value  # old location
 
-# Keep other pdfdocument items that still exist there
-from pdfminer.pdfdocument import (
-    PDFDocument,
-    PDFXRef,
-    PDFNoValidXRef,
-    LITERAL_XREF,
-    LITERAL_OBJSTM,
-    LITERAL_CATALOG,
-)
+    # DecipherCallable moved to pdftypes
+    try:
+        from pdfminer.pdftypes import DecipherCallable  # new location
+    except Exception:  # pragma: no cover
+        from pdfminer.pdfdocument import DecipherCallable  # old location
 
-# LIT moved from pdftypes -> psparser
-try:
-    from pdfminer.psparser import LIT  # new location
-except Exception:  # pragma: no cover
-    from pdfminer.pdftypes import LIT  # old location
+    # PDFObjectNotFound moved to pdfexceptions
+    try:
+        from pdfminer.pdfexceptions import PDFObjectNotFound  # new location
+    except Exception:  # pragma: no cover
+        from pdfminer.pdfdocument import PDFObjectNotFound  # old location
 
-# apply_png_predictor moved from pdftypes -> utils
-try:
-    from pdfminer.utils import apply_png_predictor  # new location
-except Exception:  # pragma: no cover
-    from pdfminer.pdftypes import apply_png_predictor  # old location
+    # Keep other pdfdocument items that still exist there
+    from pdfminer.pdfdocument import (
+        PDFDocument,
+        PDFXRef,
+        PDFNoValidXRef,
+        LITERAL_XREF,
+        LITERAL_OBJSTM,
+        LITERAL_CATALOG,
+    )
 
-# Remaining pdftypes symbols
-from pdfminer.pdftypes import (
-    PDFNotImplementedError,
-    LITERALS_FLATE_DECODE,
-    LITERALS_ASCIIHEX_DECODE,
-    LITERALS_CCITTFAX_DECODE,
-    LITERALS_RUNLENGTH_DECODE,
-    LITERAL_CRYPT,
-    LITERALS_LZW_DECODE,
-    LITERALS_DCT_DECODE,
-    LITERALS_JBIG2_DECODE,
-    LITERALS_ASCII85_DECODE,
-    int_value,
-)
+    # LIT moved from pdftypes -> psparser
+    try:
+        from pdfminer.psparser import LIT  # new location
+    except Exception:  # pragma: no cover
+        from pdfminer.pdftypes import LIT  # old location
+
+    # apply_png_predictor moved from pdftypes -> utils
+    try:
+        from pdfminer.utils import apply_png_predictor  # new location
+    except Exception:  # pragma: no cover
+        from pdfminer.pdftypes import apply_png_predictor  # old location
+
+    # Remaining pdftypes symbols
+    from pdfminer.pdftypes import (
+        PDFNotImplementedError,
+        LITERALS_FLATE_DECODE,
+        LITERALS_ASCIIHEX_DECODE,
+        LITERALS_CCITTFAX_DECODE,
+        LITERALS_RUNLENGTH_DECODE,
+        LITERAL_CRYPT,
+        LITERALS_LZW_DECODE,
+        LITERALS_DCT_DECODE,
+        LITERALS_JBIG2_DECODE,
+        LITERALS_ASCII85_DECODE,
+        int_value,
+    )
+except ImportError:
+    PDFMINER_AVAILABLE = False
 
 from .fileutils import FileStream
 from .fileutils import Tempfile
@@ -1203,6 +1208,12 @@ def pdf_obj_parser(file_stream, obj, objid: int, parent: Match, pdf_header_offse
 
 @register_parser("application/pdf")
 def pdf_parser(file_stream, parent: Match):
+    if not PDFMINER_AVAILABLE:
+        log.warning(
+            "PDF detection is not supported on Python 3.9 for security reasons. "
+            "Please upgrade to Python 3.10 or later to enable PDF parsing."
+        )
+        return
     # pdfminer expects %PDF to be at byte offset zero in the file
     pdf_header_offset = file_stream.first_index_of(b"%PDF")
     if pdf_header_offset > 0:
