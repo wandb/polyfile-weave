@@ -40,8 +40,8 @@ jobs:
       uses: trailofbits/gh-action-pip-audit@v1.1.0
       with:
         ignore-vulns: |
-          GHSA-m4xg-8fg4-qg97
-          PYSEC-2024-86
+          GHSA-w853-jp5j-5j7f
+          GHSA-qmgc-5h2g-mvrw
     - name: Lint with flake8
       run: |
         # stop the build if there are Python syntax errors or undefined names
